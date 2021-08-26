@@ -1,0 +1,12 @@
+{
+  "name": "mnemonic-lottery",
+  "version": "0.0.0",
+  "description": "mnemonic-lottery",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "ethers": "^5.4.5"
+  }
+}
