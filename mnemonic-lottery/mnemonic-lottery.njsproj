@@ -32,6 +32,9 @@
     <Content Include="ChickenDinner.txt">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="addresses.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="package.json" />
     <Content Include="README.md" />
   </ItemGroup>

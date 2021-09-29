@@ -2,19 +2,39 @@ const ethers = require('ethers');
 const https = require('https');
 const fs = require('fs');
 
+var addresses = null;
+if (process.argv[2] != null) {
+    addresses = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+}
+
+function getUnknownAddress() {
+    const randomMnemonic = ethers.Wallet.createRandom().mnemonic;
+    const wallet = ethers.Wallet.fromMnemonic(randomMnemonic.phrase);
+    if (addresses != null) {
+        if (addresses.some(wallets => wallets.address == wallet.address)) {
+            console.log("Duplicate found. Wow!");
+            //return getUnknownAddress();
+        }
+    }
+    return wallet;
+}
+
 const rateLimit = (1 / 6); // (calls/second)
 var tickets = 10; //number of addresses to try
 main();
 
 function main() {
+    //Testing 
     //const wallet = JSON.parse('{ "address":"0xF4Da19aA774e64B6cD98876fab820E024d76Ed4d", "mnemonic":{"phrase":"debug"} }');
     //const wallet = ethers.Wallet.fromMnemonic("source edit donate music dwarf chimney churn proud please conduct custom jaguar");
-    const randomMnemonic = ethers.Wallet.createRandom().mnemonic;
-    const wallet = ethers.Wallet.fromMnemonic(randomMnemonic.phrase);
-    
+    const wallet = getUnknownAddress();
+
     console.log("Checking address: " + wallet.address);
     //console.log(wallet.mnemonic.phrase);
-    
+
+    if (addresses != null) {
+        addresses.push(JSON.parse(`{"address":"${wallet.address}","phrase":"${wallet.mnemonic.phrase}"}`));
+    }
     //Check Eth
     var ethPath = '/api?module=account&action=balance&address=' + wallet.address;
     const ethOptions = {
@@ -109,3 +129,12 @@ function Jackpot(chain, address, phrase, balance) {
     console.log("Balance: " + balance + chain);
     fs.appendFileSync('ChickenDinner.txt', chain + ": " + address + " : " + phrase + " : " + balance + "\n");
 }
+
+[`SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+    process.on(eventType, function () {
+        if (addresses != null) {
+            fs.writeFileSync(process.argv[2], JSON.stringify(addresses));
+        }
+        process.exit();
+    });
+})

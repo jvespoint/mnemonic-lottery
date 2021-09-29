@@ -1,10 +1,10 @@
 {
   "name": "mnemonic-lottery",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "mnemonic-lottery",
   "main": "app.js",
   "author": {
-    "name": ""
+    "name": "James Vespoint"
   },
   "dependencies": {
     "ethers": "^5.4.5"
