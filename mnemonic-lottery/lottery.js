@@ -2,9 +2,15 @@ const ethers = require('ethers');
 const https = require('https');
 const fs = require('fs');
 
-var addresses = null;
+var tickets = 1; //number of addresses to try
 if (process.argv[2] != null) {
-    addresses = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+    tickets = process.argv[2];
+} else {
+    tickets = 50;
+}
+var addresses = null;
+if (process.argv[3] != null) {
+    addresses = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
 }
 
 function getUnknownAddress() {
@@ -13,14 +19,14 @@ function getUnknownAddress() {
     if (addresses != null) {
         if (addresses.some(wallets => wallets.address == wallet.address)) {
             console.log("Duplicate found. Wow!");
-            //return getUnknownAddress();
+            return getUnknownAddress();
         }
     }
     return wallet;
 }
 
 const rateLimit = (1 / 6); // (calls/second)
-var tickets = 10; //number of addresses to try
+
 main();
 
 function main() {
@@ -118,6 +124,10 @@ function main() {
     tickets--;
     if (tickets > 0) {
         setTimeout(main, 1000 / rateLimit); //rate limiting
+    } else {
+        if (addresses != null) {
+            fs.writeFileSync(process.argv[3], JSON.stringify(addresses));
+        }
     }
 }
 
@@ -133,7 +143,7 @@ function Jackpot(chain, address, phrase, balance) {
 [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
     process.on(eventType, function () {
         if (addresses != null) {
-            fs.writeFileSync(process.argv[2], JSON.stringify(addresses));
+            fs.writeFileSync(process.argv[3], JSON.stringify(addresses));
         }
         process.exit();
     });
